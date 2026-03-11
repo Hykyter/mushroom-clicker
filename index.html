@@ -3,116 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mushroom Coin Deluxe</title>
+    <title>Mushroom Coin: Creator Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --gold: #ffeb3b; --green: #00e676; --bg: #1a0f0a; }
-        body { background: radial-gradient(circle at top, #2c1e14 0%, #000 100%); color: white; text-align: center; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        :root { --gold: #ffeb3b; --green: #00e676; --red: #ff5252; --glass: rgba(255, 255, 255, 0.05); }
+        body { background: radial-gradient(circle at top, #2c1e14 0%, #000 100%); color: white; text-align: center; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         
-        /* Шапка с неоном */
-        .header { margin: 25px 15px; padding: 20px; border-radius: 25px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
-        #score { font-size: 55px; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px rgba(255, 235, 59, 0.4); margin: 0; transition: 0.1s; }
-        #mcoin-display { font-size: 20px; color: var(--green); font-weight: bold; margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        #power-info { font-size: 12px; color: #aaa; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;}
+        .header { margin: 20px 15px; padding: 20px; border-radius: 25px; background: var(--glass); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #score { font-size: 50px; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px rgba(255, 235, 59, 0.4); margin: 0; }
+        #mc-display { font-size: 20px; color: var(--green); font-weight: bold; margin-top: 5px; }
 
-        .content { flex-grow: 1; overflow-y: auto; padding-bottom: 110px; z-index: 1; position: relative;}
-        .page { display: none; width: 100%; padding: 20px; box-sizing: border-box; animation: fadeIn 0.3s ease; }
+        .content { flex-grow: 1; overflow-y: auto; padding-bottom: 120px; position: relative; z-index: 1; }
+        .page { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .active-page { display: block !important; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Анимация клика */
+        /* Тапалка */
+        #mushroom { width: 240px; cursor: pointer; transition: transform 0.05s; filter: drop-shadow(0 0 30px rgba(255,255,255,0.1)); margin-top: 40px; }
+        #mushroom:active { transform: scale(0.92); }
         .click-ani { position: absolute; color: var(--gold); font-weight: bold; pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; font-size: 24px; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
 
-        /* Тапалка */
-        .mushroom-container { height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        #mushroom { width: 240px; cursor: pointer; transition: transform 0.05s; -webkit-user-drag: none; filter: drop-shadow(0 0 30px rgba(255,255,255,0.1)); position: relative; z-index: 10;}
-        #mushroom:active { transform: scale(0.9); }
+        /* Карточки */
+        .card { background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%); padding: 20px; margin-bottom: 15px; border-radius: 22px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08); }
+        .btn { background: var(--gold); color: #000; padding: 12px 22px; border-radius: 15px; font-weight: 800; border: none; cursor: pointer; box-shadow: 0 5px 15px rgba(255,235,59,0.3); }
+        .btn:active { transform: scale(0.95); }
 
-        /* Элементы списков (Шоп, Топ) */
-        .shop-item, .leader-item { background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%); padding: 18px; margin-bottom: 12px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.06); transition: 0.2s; position: relative; z-index: 1;}
-        .buy-btn { background: var(--gold); color: #000; padding: 12px 22px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; box-shadow: 0 5px 15px rgba(255,235,59,0.3); position: relative; z-index: 10;}
-        .buy-btn:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(255,235,59,0.2); }
-        .exchange-btn { background: linear-gradient(180deg, #00e676 0%, #00c853 100%); color: white; width: 100%; padding: 18px; border-radius: 20px; border: none; font-weight: bold; margin-top: 15px; box-shadow: 0 5px 20px rgba(0,200,83,0.3); cursor: pointer;}
-
-        /* Улучшенная Ракета */
-        #rocket-game { background: #0a0a0a; border-radius: 25px; padding: 30px; border: 2px solid #333; position: relative; overflow: hidden; transition: 0.3s; box-shadow: 0 0 40px rgba(255,235,59,0.1); }
-        #rocket-game.active { border-color: var(--gold); box-shadow: 0 0 40px rgba(255,235,59,0.2); }
-        #multiplier { font-size: 70px; font-weight: bold; color: var(--gold); margin: 15px 0; position: relative; z-index: 2; font-family: monospace; text-shadow: 0 0 25px rgba(255,235,59,0.6);}
-        .shake { animation: shake 0.1s infinite; }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 10% { transform: translate(-1px, -2px); } 100% { transform: translate(1px, -1px); } }
-        
-        .flame { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); width: 150px; height: 80px; background: radial-gradient(ellipse at center, #ff5722 0%, rgba(255,87,34,0) 70%); filter: blur(15px); opacity: 0; transition: 0.3s; z-index: 1;}
+        /* Ракетка */
+        .rocket-area { background: #0a0a0a; border-radius: 30px; padding: 30px; border: 2px solid #333; position: relative; overflow: hidden; transition: 0.3s; }
+        .rocket-on { border-color: var(--gold); box-shadow: 0 0 40px rgba(255,235,59,0.2); animation: shake 0.1s infinite; }
+        #multiplier { font-size: 70px; font-weight: bold; color: var(--gold); margin: 15px 0; text-shadow: 0 0 25px rgba(255,235,59,0.6); }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
+        .flame { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); width: 120px; height: 60px; background: radial-gradient(ellipse at center, #ff5722 0%, rgba(255,87,34,0) 70%); filter: blur(15px); opacity: 0; }
         .flame-on { opacity: 0.8; animation: pulse 0.1s infinite alternate; }
-        @keyframes pulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.1); } }
-        .rocket-input { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--gold); padding: 12px; border-radius: 12px; width: 80px; text-align: center; font-size: 18px; margin: 0 10px; position: relative; z-index: 10;}
+        @keyframes pulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.2); } }
+
+        /* Админка */
+        .adm-input { width: 100%; padding: 12px; margin: 8px 0; background: #111; border: 1px solid #444; color: white; border-radius: 12px; box-sizing: border-box; }
 
         /* Навигация */
-        .nav { display: flex; position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); padding: 20px 10px; border-top: 1px solid rgba(255,255,255,0.08); z-index: 100; justify-content: space-around; }
-        .nav-item { flex: 1; opacity: 0.5; font-size: 11px; text-transform: uppercase; transition: 0.2s; cursor: pointer; display: flex; flex-direction: column; align-items: center; letter-spacing: 1px; }
-        .nav-item.active { opacity: 1; color: var(--gold); font-weight: bold; transform: translateY(-3px); }
-        .nav-icon { font-size: 22px; margin-bottom: 5px; }
+        .nav { display: flex; position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); padding: 25px 0; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
+        .nav-item { flex: 1; opacity: 0.4; font-size: 11px; transition: 0.3s; cursor: pointer; font-weight: bold; }
+        .nav-item.active { opacity: 1; color: var(--gold); transform: translateY(-5px); }
     </style>
 </head>
-<body onclick="spawnParticle(event)">
+<body>
 
 <div class="header">
     <div id="score">0</div>
-    <div id="mcoin-display"><span>🪙</span> <span id="mc-val">0</span> MC</div>
-    <div id="power-info">Клик: +1 | Фарм: 0/ч</div>
+    <div id="mc-display">🪙 <span id="mc-val">0</span> MC</div>
 </div>
 
 <div class="content">
     <div id="game" class="page active-page">
-        <div class="mushroom-container">
-            <img id="mushroom" src="1000002276.png" onclick="clickMushroom(event)" onerror="this.src='https://img.icons8.com/emoji/256/mushroom-emoji.png'">
-            <p style="color: #666; margin-top: 25px; text-transform: uppercase; font-size: 11px; letter-spacing: 2px;">Тапай мухомор!</p>
-        </div>
+        <img id="mushroom" src="1000002276.png" onclick="tap(event)">
+        <p style="color: #444; margin-top: 30px; font-weight: bold; letter-spacing: 2px;">LVL: <span id="lvl">1</span></p>
     </div>
 
     <div id="shop" class="page">
-        <h2 style="color: var(--gold); text-transform: uppercase; letter-spacing: 2px;">Улучшения</h2>
-        <div class="shop-item"><div><b>Мухоморная мощь</b><br><small style="color: #aaa;">Клик +2</small></div><button id="upgrade-btn" class="buy-btn" onclick="buyUpgrade()">50</button></div>
-        <div class="shop-item"><div><b>🍄 Ферма</b><br><small style="color: #aaa;">Авто: +50/час</small></div><button id="farm-btn" class="buy-btn" onclick="buyFarm()">1k</button></div>
-        <div class="shop-item"><div><b>📦 Склад</b><br><small id="limit-info" style="color: #aaa;">Лимит: 2ч</small></div><button id="limit-btn" class="buy-btn" onclick="buyLimit()">2.5k</button></div>
-        
-        <h2 style="color: #00e676; margin-top: 35px; text-transform: uppercase; letter-spacing: 2px;">Обменник</h2>
-        <div style="background: rgba(0,230,118,0.05); padding: 20px; border-radius: 20px; border: 1px dashed #00e676; position: relative; z-index: 1;">
-            <p style="margin: 0; color: #aaa;">Курс: 500k 🍄 = 1 🪙 MC</p>
-            <button class="exchange-btn" onclick="exchangeMushrooms()">ОБМЕНЯТЬ</button>
+        <h2 style="color: var(--gold)">УЛУЧШЕНИЯ</h2>
+        <div class="card"><div><b>Сила тапа</b><br><small>+2 гриба</small></div><button class="btn" onclick="buyU()" id="ubtn">50</button></div>
+        <div class="card"><div><b>Ферма</b><br><small>Автодоход</small></div><button class="btn" onclick="buyF()" id="fbtn">1k</button></div>
+        <div class="card" style="border-color: var(--green)"><div><b>Промокод</b><br><small>Введите секрет</small></div><button class="btn" style="background:var(--green); color:white" onclick="usePromo()">ВВОД</button></div>
+    </div>
+
+    <div id="games" class="page">
+        <div class="rocket-area" id="ra">
+            <div class="flame" id="fl"></div>
+            <h2 style="margin: 0; letter-spacing: 3px;">CRASH ROCKET</h2>
+            <div id="multiplier">1.00x</div>
+            <input type="number" id="bet" value="1" style="background:#222; color:white; border:1px solid var(--gold); padding:10px; border-radius:10px; width:80px; text-align:center; font-size:20px">
+            <button id="rbtn" class="btn" style="width:100%; margin-top:20px; height:60px; font-size:18px" onclick="rocketStart()">ВЗЛЕТ</button>
         </div>
     </div>
 
     <div id="leaders" class="page">
-        <h2 style="color: var(--gold); text-transform: uppercase; letter-spacing: 2px;">Топ-30 Мира</h2>
-        <div id="leader-list">Загрузка рейтинга...</div>
+        <h2 style="color: var(--gold)">TOP PLAYERS</h2>
+        <div id="leader-list"></div>
     </div>
 
-    <div id="games" class="page">
-        <h2 style="color: var(--gold); text-transform: uppercase; letter-spacing: 2px;">Грибные Игры</h2>
-        <div id="rocket-game">
-            <div class="flame" id="flame"></div>
-            <h3 style="margin: 0; letter-spacing: 3px; position: relative; z-index: 2;">🚀 CRASH ROCKET</h3>
-            <div id="multiplier">1.00x</div>
-            <div id="rocket-status" style="color: #aaa; margin-bottom: 15px; position: relative; z-index: 2;">Готов к взлету</div>
-            <div style="margin: 20px 0; position: relative; z-index: 2;">
-                Ставка: <input type="number" id="bet-amount" class="rocket-input" value="1" min="1"> MC
-            </div>
-            <button id="rocket-btn" class="buy-btn" style="width: 100%; height: 60px; font-size: 18px;" onclick="handleRocket()">СТАРТ</button>
+    <div id="admin" class="page">
+        <h2 style="color: var(--red)">ADMIN PANEL</h2>
+        <div class="card" style="flex-direction:column; align-items:flex-start">
+            <p style="margin:0 0 10px 0">Начислить MC:</p>
+            <input type="text" id="target-id" class="adm-input" placeholder="ID игрока">
+            <input type="number" id="gift-amt" class="adm-input" placeholder="Количество MC">
+            <button class="btn" style="background:var(--red); width:100%" onclick="admGive()">ВЫДАТЬ</button>
         </div>
     </div>
 </div>
 
 <div class="nav">
-    <div id="nav-game" class="nav-item active" onclick="showPage('game')"><span class="nav-icon">🍄</span>Дом</div>
-    <div id="nav-shop" class="nav-item" onclick="showPage('shop')"><span class="nav-icon">🛒</span>Шоп</div>
-    <div id="nav-games" class="nav-item" onclick="showPage('games')"><span class="nav-icon">🚀</span>Игры</div>
-    <div id="nav-leaders" class="nav-item" onclick="showPage('leaders')"><span class="nav-icon">🏆</span>Топ</div>
+    <div class="nav-item active" id="n-game" onclick="showP('game')">🍄<br>ДОМ</div>
+    <div class="nav-item" id="n-shop" onclick="showP('shop')">🛒<br>ШОП</div>
+    <div class="nav-item" id="n-games" onclick="showP('games')">🚀<br>ИГРЫ</div>
+    <div class="nav-item" id="n-leaders" onclick="showP('leaders')">🏆<br>ТОП</div>
+    <div class="nav-item" id="n-admin" style="display:none; color:var(--red)" onclick="showP('admin')">⚙️<br>АДМИН</div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+    import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDXEYGzr0W0sQijK6CkFkwcTDx93LiVEkk",
@@ -126,154 +117,135 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    let tg = window.Telegram.WebApp; tg.expand();
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-    const uId = tg.initDataUnsafe?.user?.id || "local_user";
-    const uName = tg.initDataUnsafe?.user?.first_name || "Грибник";
+    const uId = tg.initDataUnsafe?.user?.id || "local";
+    const uName = tg.initDataUnsafe?.user?.first_name || "Gribnik";
+    const MY_ID = 5100051176;
 
-    // Умная загрузка (из облака или локально)
-    let count = 0, mCoins = 0, power = 1, upgCost = 50, farmRate = 0, farmCost = 1000, farmLimit = 2, lastV = Date.now();
+    let count = 0, mCoins = 0, power = 1, uCost = 50, fCost = 1000;
 
-    async function loadData() {
-        const userRef = ref(db, 'users/' + uId);
-        const snapshot = await get(userRef);
-        
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            count = data.s || 0; mCoins = data.c || 0; power = data.p || 1;
-            upgCost = data.uc || 50; farmRate = data.fr || 0; farmCost = data.fc || 1000;
-            farmLimit = data.fl || 2; lastV = data.lv || Date.now();
+    async function init() {
+        const snap = await get(ref(db, 'users/' + uId));
+        if (snap.exists()) {
+            const d = snap.val();
+            count = d.s || 0; mCoins = d.c || 0; power = d.p || 1;
+            uCost = d.uc || 50; fCost = d.fc || 1000;
         } else {
-            // Если в облаке пусто, пытаемся достать из памяти телефона (localStorage)
             count = parseFloat(localStorage.getItem('m_cnt')) || 0;
             mCoins = parseInt(localStorage.getItem('m_mc')) || 0;
-            // ... подгрузи остальные локальные переменные так же, если нужно
+            power = parseInt(localStorage.getItem('m_pwr')) || 1;
         }
-        checkOfflineFarm();
+        if (uId == MY_ID) document.getElementById('n-admin').style.display = 'block';
         updateUI();
     }
 
     window.updateUI = function() {
         document.getElementById('score').innerText = Math.floor(count).toLocaleString();
         document.getElementById('mc-val').innerText = mCoins;
-        document.getElementById('power-info').innerText = `Клик: +${power} | Фарм: ${Math.floor(farmRate * 3600)}/ч`;
-        document.getElementById('upgrade-btn').innerText = upgCost;
-        document.getElementById('farm-btn').innerText = farmCost;
-        document.getElementById('limit-btn').innerText = farmLimit + 'ч';
+        document.getElementById('ubtn').innerText = uCost;
+        document.getElementById('fbtn').innerText = fCost;
+        document.getElementById('lvl').innerText = Math.floor(count / 10000) + 1;
     }
 
     function save() {
-        // Локальное сохранение
         localStorage.setItem('m_cnt', count);
-        
-        // Облачное сохранение (Firebase) - теперь с кучей переменных
-        set(ref(db, 'users/' + uId), { 
-            n: uName, s: Math.floor(count), c: mCoins, p: power, 
-            uc: upgCost, fr: farmRate, fc: farmCost, fl: farmLimit, lv: Date.now() 
-        });
+        localStorage.setItem('m_mc', mCoins);
+        localStorage.setItem('m_pwr', power);
+        set(ref(db, 'users/' + uId), { n: uName, s: Math.floor(count), c: mCoins, p: power, uc: uCost, fc: fCost });
     }
 
-    function checkOfflineFarm() {
-        let now = Date.now();
-        let diff = Math.floor((now - lastV) / 1000);
-        let maxS = farmLimit * 3600;
-        if (diff > 60 && farmRate > 0) {
-            let earned = Math.min(diff, maxS) * farmRate;
-            count += earned;
-            tg.showPopup({ title: 'Оффлайн доход', message: `Выросло: ${Math.floor(earned)} 🍄`, buttons: [{type: 'ok'}] });
-        }
-    }
-
-    window.clickMushroom = function(e) {
+    window.tap = function(e) {
         count += power;
-        // Анимация цифр
-        const el = document.createElement('div');
-        el.className = 'click-ani';
-        el.innerText = `+${power}`;
-        el.style.left = `${e.pageX}px`;
-        el.style.top = `${e.pageY}px`;
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 600);
-        
+        const ani = document.createElement('div');
+        ani.className = 'click-ani';
+        ani.innerText = `+${power}`;
+        ani.style.left = e.pageX + 'px';
+        ani.style.top = e.pageY + 'px';
+        document.body.appendChild(ani);
+        setTimeout(() => ani.remove(), 600);
         updateUI(); save();
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
     }
 
-    window.buyUpgrade = function() { if(count >= upgCost) { count -= upgCost; power += 2; upgCost = Math.floor(upgCost * 1.6); updateUI(); save(); } }
-    window.buyFarm = function() { if(count >= farmCost) { count -= farmCost; farmRate += 0.014; farmCost *= 2; updateUI(); save(); } }
-    window.buyLimit = function() { if(count >= 2500) { count -= 2500; farmLimit += 2; updateUI(); save(); } }
-    window.exchangeMushrooms = function() { if(count >= 500000) { count -= 500000; mCoins += 1; updateUI(); save(); } }
-
-    window.showPage = function(p) {
-        document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
-        document.getElementById(p).classList.add('active-page');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('nav-'+p).classList.add('active');
-        if(p === 'leaders') loadLeaders();
-    }
-
-    function loadLeaders() {
-        onValue(ref(db, 'users/'), (snap) => {
-            const data = snap.val();
-            let arr = [];
-            for(let id in data) arr.push(data[id]);
-            arr.sort((a,b) => b.s - a.s);
-            let h = "";
-            arr.slice(0, 30).forEach((p, i) => {
-                let hiddenName = p.n.slice(0, 3) + "***";
-                h += `<div class="leader-item"><span>${i+1}. ${hiddenName}</span><span>${p.s.toLocaleString()} 🍄</span></div>`;
-            });
-            document.getElementById('leader-list').innerHTML = h || "Пока никого нет...";
-        });
-    }
-
-    let rRun = false, rM = 1.0, rI;
-    window.handleRocket = function() {
-        let b = parseInt(document.getElementById('bet-amount').value);
-        let btn = document.getElementById('rocket-btn');
-        let fire = document.getElementById('flame');
-        let card = document.getElementById('rocket-game');
-        let multEl = document.getElementById('multiplier');
-        
+    // РАКЕТА (GIFTUP STYLE)
+    let rRun = false, rM = 1.0, rInt;
+    window.rocketStart = function() {
+        const b = parseInt(document.getElementById('bet').value);
         if(rRun) { stopR(false); return; }
         if(mCoins < b || b <= 0) { tg.showAlert("Мало MC!"); return; }
-        
         mCoins -= b; rRun = true; rM = 1.0; updateUI();
-        btn.innerText = "ЗАБРАТЬ!"; btn.style.background = "#ff5252";
-        document.getElementById('rocket-status').innerText = "ПОЛЕТЕЛИ!";
-        fire.classList.add('flame-on');
-        card.classList.add('active');
-        multEl.classList.add('shake');
-        
-        rI = setInterval(() => {
-            rM += 0.09; document.getElementById('multiplier').innerText = rM.toFixed(2)+"x";
+        document.getElementById('rbtn').innerText = "ЗАБРАТЬ!";
+        document.getElementById('rbtn').style.background = "var(--red)";
+        document.getElementById('ra').classList.add('rocket-on');
+        document.getElementById('fl').classList.add('flame-on');
+        rInt = setInterval(() => {
+            rM += 0.08;
+            document.getElementById('multiplier').innerText = rM.toFixed(2) + "x";
             if(Math.random() < (rM * 0.016)) stopR(true);
         }, 100);
     }
-    
+
     function stopR(c) {
-        clearInterval(rI); rRun = false;
-        let b = parseInt(document.getElementById('bet-amount').value);
-        document.getElementById('flame').classList.remove('flame-on');
-        document.getElementById('rocket-game').classList.remove('active');
-        document.getElementById('multiplier').classList.remove('shake');
-        
-        if(!c) { 
-            let win = Math.floor(b * rM); mCoins += win;
-            document.getElementById('rocket-status').innerText = `Победа: +${win-b} MC`;
-            tg.HapticFeedback.notificationOccurred('success'); 
+        clearInterval(rInt); rRun = false;
+        const b = parseInt(document.getElementById('bet').value);
+        document.getElementById('ra').classList.remove('rocket-on');
+        document.getElementById('fl').classList.remove('flame-on');
+        if(c) {
+            document.getElementById('multiplier').innerText = "💥";
+            tg.HapticFeedback.notificationOccurred('error');
+        } else {
+            mCoins += Math.floor(b * rM);
+            tg.HapticFeedback.notificationOccurred('success');
         }
-        else { 
-            tg.HapticFeedback.notificationOccurred('error'); 
-            document.getElementById('multiplier').innerText = "💥"; 
-            document.getElementById('rocket-status').innerText = `Взрыв на ${rM.toFixed(2)}x!`;
-        }
-        document.getElementById('rocket-btn').innerText = "СТАРТ";
-        document.getElementById('rocket-btn').style.background = "var(--gold)";
-        updateUI(); save();
+        document.getElementById('rbtn').innerText = "ВЗЛЕТ";
+        document.getElementById('rbtn').style.background = "var(--gold)";
+        setTimeout(() => { document.getElementById('multiplier').innerText = "1.00x"; updateUI(); save(); }, 1500);
     }
 
-    loadData(); // Загрузка всего при старте
+    // АДМИНКА
+    window.admGive = async function() {
+        const tid = document.getElementById('target-id').value;
+        const amt = parseInt(document.getElementById('gift-amt').value);
+        const s = await get(ref(db, 'users/' + tid));
+        if(s.exists()){
+            let d = s.val(); d.c = (d.c || 0) + amt;
+            await set(ref(db, 'users/' + tid), d);
+            tg.showAlert("Выдано!");
+        } else tg.showAlert("ID не найден");
+    }
+
+    // ПРОМОКОД
+    window.usePromo = function() {
+        const p = prompt("Введите код:");
+        if(p === "BOSS") { 
+            if(!localStorage.getItem('p_boss')) {
+                mCoins += 1000; localStorage.setItem('p_boss', '1');
+                tg.showAlert("Активирован код BOSS! +1000 MC");
+                updateUI(); save();
+            } else tg.showAlert("Уже вводили!");
+        } else tg.showAlert("Неверно!");
+    }
+
+    window.buyU = () => { if(count >= uCost) { count -= uCost; power += 2; uCost = Math.floor(uCost*1.7); updateUI(); save(); } }
+    window.showP = (p) => {
+        document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
+        document.getElementById(p).classList.add('active-page');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('n-'+p).classList.add('active');
+        if(p === 'leaders') {
+            onValue(ref(db, 'users/'), (s) => {
+                let a = []; s.forEach(x => { a.push(x.val()) });
+                a.sort((x,y) => y.s - x.s);
+                document.getElementById('leader-list').innerHTML = a.slice(0,20).map((u,i) => 
+                    `<div class="card"><span>${i+1}. ${u.n}</span><span>${u.s.toLocaleString()} 🍄</span></div>`
+                ).join('');
+            });
+        }
+    }
+
+    init();
 </script>
 </body>
 </html>
