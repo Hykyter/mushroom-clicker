@@ -1,40 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mushroom Clicker</title>
+    <title>Mushroom Coin</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #1a1a1a; color: white; text-align: center; font-family: sans-serif; overflow: hidden; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        #score { font-size: 50px; margin-bottom: 20px; font-weight: bold; color: #ffeb3b; }
-        .mushroom-container { cursor: pointer; transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
-        .mushroom-container:active { transform: scale(0.9); }
-        #mushroom { font-size: 180px; user-select: none; }
+        body {
+            background: radial-gradient(circle, #2c1e14 0%, #000000 100%);
+            color: white;
+            text-align: center;
+            font-family: sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            justify-content: space-between;
+        }
+        .header { margin-top: 40px; }
+        #score { font-size: 50px; font-weight: bold; color: #ffeb3b; }
+        .mush-btn {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #mushroom {
+            width: 250px;
+            transition: transform 0.05s;
+            user-select: none;
+            cursor: pointer;
+        }
+        #mushroom:active { transform: scale(0.9); }
+        .nav {
+            display: flex;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+        }
+        .nav div { flex: 1; font-size: 12px; opacity: 0.6; }
+        .active { opacity: 1 !important; font-weight: bold; }
     </style>
 </head>
 <body>
+
+<div class="header">
     <div id="score">0</div>
-    <div class="mushroom-container" onclick="clickMushroom()">
-        <div id="mushroom">🍄</div>
-    </div>
+    <div style="font-size: 14px; color: #aaa;">ГРИБНЫХ КОИНОВ</div>
+</div>
 
-    <script>
-        let count = 0;
-        const scoreElement = document.getElementById('score');
+<div class="mush-btn">
+    <img id="mushroom" src="mushroom.png" onclick="clickMushroom()" onerror="this.src='https://img.icons8.com/emoji/256/mushroom-emoji.png'">
+</div>
+
+<div class="nav">
+    <div class="active">ДОМ</div>
+    <div>МАГАЗИН</div>
+    <div>ДРУЗЬЯ</div>
+</div>
+
+<script>
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+
+    // Загрузка сохранения
+    let count = parseInt(localStorage.getItem('mush_count')) || 0;
+    document.getElementById('score').innerText = count;
+
+    function clickMushroom() {
+        count++;
+        document.getElementById('score').innerText = count;
         
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand(); // Разворачивает приложение на весь экран
+        // Сохранение в память телефона
+        localStorage.setItem('mush_count', count);
 
-        function clickMushroom() {
-            count++;
-            scoreElement.innerText = count;
-            
-            // Вибрация при клике
-            if (window.Telegram.WebApp.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-            }
+        // Вибрация
+        if (tg.HapticFeedback) {
+            tg.HapticFeedback.impactOccurred('medium');
         }
-    </script>
+    }
+</script>
 </body>
-      </html>
+</html>
