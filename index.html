@@ -7,93 +7,116 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { background: radial-gradient(circle, #2c1e14 0%, #000000 100%); color: white; text-align: center; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .header { margin-top: 30px; }
-        #score { font-size: 50px; font-weight: bold; color: #ffeb3b; }
-        .content { flex-grow: 1; display: flex; align-items: center; justify-content: center; }
-        #mushroom { width: 220px; transition: transform 0.05s; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        #mushroom:active { transform: scale(0.9); }
-        .page { display: none; width: 100%; padding: 20px; box-sizing: border-box; }
-        .active-page { display: block; }
-        .shop-item { background: rgba(255,255,255,0.1); padding: 15px; margin: 10px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .buy-btn { background: #ffeb3b; color: black; padding: 10px; border-radius: 10px; font-weight: bold; border: none; }
-        .nav { display: flex; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 15px; border-radius: 20px 20px 0 0; }
-        .nav-item { flex: 1; font-size: 12px; opacity: 0.5; cursor: pointer; }
-        .nav-item.active { opacity: 1; font-weight: bold; color: #ffeb3b; }
+        .header { margin-top: 30px; padding: 10px; }
+        #score { font-size: 60px; font-weight: bold; color: #ffeb3b; text-shadow: 0 0 20px rgba(255,235,59,0.4); }
+        .content { flex-grow: 1; position: relative; }
+        .page { display: none; width: 100%; height: 100%; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .active-page { display: block !important; }
+        #mushroom { width: 250px; cursor: pointer; transition: transform 0.08s; -webkit-tap-highlight-color: transparent; border-radius: 20px; }
+        #mushroom:active { transform: scale(0.92); }
+        .shop-item { background: rgba(255,255,255,0.05); padding: 15px; margin: 10px 0; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
+        .buy-btn { background: #ffeb3b; color: black; padding: 10px 20px; border-radius: 10px; font-weight: bold; border: none; }
+        .nav { display: flex; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); padding: 20px 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .nav-item { flex: 1; font-size: 13px; opacity: 0.4; text-transform: uppercase; transition: 0.2s; cursor: pointer; }
+        .nav-item.active { opacity: 1; color: #ffeb3b; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div id="score">0</div>
-    <div style="font-size: 12px; color: #aaa;">ГРИБНЫХ КОИНОВ</div>
+    <div id="power-info" style="font-size: 12px; color: #888; margin-top: 5px;">+1 за клик</div>
 </div>
 
 <div class="content">
-    <div id="game-page" class="page active-page">
-        <img id="mushroom" src="https://img.icons8.com/emoji/256/mushroom-emoji.png" onclick="clickMushroom()">
-        <p style="color: #666;">Кликай на гриб!</p>
-    </div>
-
-    <div id="shop-page" class="page">
-        <h2>Магазин</h2>
-        <div class="shop-item">
-            <div><b>Супер-споры</b><br><small>+2 к клику</small></div>
-            <button class="buy-btn" onclick="buyUpgrade(50)">50 🍄</button>
+    <div id="game" class="page active-page">
+        <div style="height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+            <img id="mushroom" src="1000002276.png" onclick="clickMushroom()" onerror="this.src='https://img.icons8.com/emoji/256/mushroom-emoji.png'">
+            <p style="color: #555; margin-top: 20px;">Тапай по мухомору!</p>
         </div>
     </div>
 
-    <div id="friends-page" class="page">
-        <h2>Друзья</h2>
-        <p>Приглашай друзей и получай бонусы!</p>
-        <button class="buy-btn" style="width: 80%;" onclick="window.Telegram.WebApp.openTelegramLink('https://t.me/share/url?url=t.me/Myxaxroomek_bot/Game_myxamor')">Пригласить</button>
+    <div id="shop" class="page">
+        <h2 style="color: #ffeb3b;">Магазин</h2>
+        <div class="shop-item">
+            <div style="text-align: left;">
+                <b style="font-size: 18px;">Мухоморная мощь</b><br>
+                <small style="color: #aaa;">Увеличивает клик на +2</small>
+            </div>
+            <button id="upgrade-btn" class="buy-btn" onclick="buyUpgrade()">50 🍄</button>
+        </div>
+        <p style="font-size: 12px; color: #666; margin-top: 20px;">Больше апгрейдов скоро...</p>
+    </div>
+
+    <div id="friends" class="page">
+        <h2 style="color: #ffeb3b;">Друзья</h2>
+        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px;">
+            <p>Приглашай корешей и получай бонусы за каждого!</p>
+            <button class="buy-btn" style="width: 100%;" onclick="inviteFriend()">Пригласить</button>
+        </div>
     </div>
 </div>
 
 <div class="nav">
-    <div class="nav-item active" onclick="showPage('game')">ДОМ</div>
-    <div class="nav-item" onclick="showPage('shop')">МАГАЗИН</div>
-    <div class="nav-item" onclick="showPage('friends')">ДРУЗЬЯ</div>
+    <div id="nav-game" class="nav-item active" onclick="showPage('game')">Дом</div>
+    <div id="nav-shop" class="nav-item" onclick="showPage('shop')">Магазин</div>
+    <div id="nav-friends" class="nav-item" onclick="showPage('friends')">Друзья</div>
 </div>
 
 <script>
     let tg = window.Telegram.WebApp;
     tg.expand();
 
+    // Загрузка данных
     let count = parseInt(localStorage.getItem('mush_count')) || 0;
     let power = parseInt(localStorage.getItem('mush_power')) || 1;
-    updateUI();
+    let upgradeCost = parseInt(localStorage.getItem('mush_cost')) || 50;
 
     function updateUI() {
         document.getElementById('score').innerText = count;
+        document.getElementById('power-info').innerText = '+' + power + ' за клик';
+        document.getElementById('upgrade-btn').innerText = upgradeCost + ' 🍄';
     }
+    updateUI();
 
     function clickMushroom() {
         count += power;
         updateUI();
         localStorage.setItem('mush_count', count);
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
     }
 
-    function buyUpgrade(price) {
-        if (count >= price) {
-            count -= price;
+    function buyUpgrade() {
+        if (count >= upgradeCost) {
+            count -= upgradeCost;
             power += 2;
+            upgradeCost = Math.floor(upgradeCost * 1.5); // Цена растет
             updateUI();
             localStorage.setItem('mush_count', count);
             localStorage.setItem('mush_power', power);
-            alert('Улучшение куплено! Теперь +'+power+' за клик!');
+            localStorage.setItem('mush_cost', upgradeCost);
+            tg.HapticFeedback.notificationOccurred('success');
         } else {
-            alert('Недостаточно грибов!');
+            tg.showAlert('Тебе не хватает грибов! Иди тапай!');
         }
     }
 
     function showPage(pageId) {
+        // Переключаем страницы
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active-page');
         
-        document.getElementById(pageId + '-page').classList.add('active-page');
-        event.currentTarget.classList.add('active');
+        // Переключаем кнопки меню
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById('nav-' + pageId).classList.add('active');
+        
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+    }
+
+    function inviteFriend() {
+        const url = 'https://t.me/share/url?url=t.me/Myxaxroomek_bot/Game_myxamor&text=Стань грибным магнатом вместе со мной!';
+        tg.openTelegramLink(url);
     }
 </script>
 </body>
-    </html>
+</html>
