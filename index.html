@@ -3,303 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mushroom Evolution: Pets Update</title>
+    <title>Mushroom Farm Pro Max</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --gold: #ffeb3b; --green: #00e676; --red: #ff5252; --glass: rgba(255, 255, 255, 0.05); }
-        body { background: radial-gradient(circle at top, #2c1e14 0%, #000 100%); color: white; text-align: center; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
-        
-        .header { margin: 15px; padding: 15px; border-radius: 20px; background: var(--glass); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
-        #score { font-size: 45px; font-weight: 900; color: var(--gold); text-shadow: 0 0 15px rgba(255, 235, 59, 0.4); margin: 0; }
-        #mc-display { font-size: 18px; color: var(--green); font-weight: bold; }
-
-        .content { flex-grow: 1; overflow-y: auto; padding-bottom: 120px; position: relative; }
-        .page { display: none; padding: 15px; animation: fadeIn 0.3s ease; }
+        :root { --gold: #ffeb3b; --green: #00e676; --red: #ff5252; --blue: #2196f3; --glass: rgba(255, 255, 255, 0.07); }
+        body { background: #000; color: white; text-align: center; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        .header { margin: 10px; padding: 15px; border-radius: 20px; background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        #score { font-size: 32px; font-weight: 900; color: var(--gold); }
+        #mc-info { font-size: 18px; color: var(--green); font-weight: bold; }
+        .content { flex-grow: 1; overflow-y: auto; padding-bottom: 100px; }
+        .page { display: none; padding: 15px; animation: fadeIn 0.2s ease; }
         .active-page { display: block !important; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Элементы списков */
-        .card { background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%); padding: 15px; margin-bottom: 12px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08); }
-        .btn { background: var(--gold); color: #000; padding: 10px 18px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; }
-        .btn:disabled { background: #444; color: #888; cursor: not-allowed; }
-
-        /* Ракета */
-        .rocket-area { background: #0a0a0a; border-radius: 25px; padding: 25px; border: 2px solid #333; position: relative; overflow: hidden; }
-        .rocket-on { border-color: var(--gold); animation: shake 0.1s infinite; }
-        #multiplier { font-size: 60px; font-weight: bold; color: var(--gold); margin: 10px 0; }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
-        .flame { position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); width: 100px; height: 50px; background: radial-gradient(ellipse at center, #ff5722 0%, rgba(255,87,34,0) 70%); filter: blur(10px); opacity: 0; }
-        .flame-on { opacity: 0.8; animation: pulse 0.1s infinite alternate; }
-
-        /* Навигация */
-        .nav { display: flex; position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.9); padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
-        .nav-item { flex: 1; opacity: 0.4; font-size: 10px; transition: 0.3s; cursor: pointer; font-weight: bold; text-transform: uppercase; }
-        .nav-item.active { opacity: 1; color: var(--gold); transform: translateY(-3px); }
-
-        /* Питомцы */
-        .pet-icon { font-size: 30px; margin-right: 15px; }
-        .pet-info { text-align: left; flex-grow: 1; }
-        .pet-count { font-size: 10px; color: var(--gold); background: rgba(255,235,59,0.1); padding: 2px 6px; border-radius: 5px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: rgba(255,255,255,0.05); padding: 15px; margin-bottom: 10px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
+        .btn { background: var(--blue); color: white; padding: 12px 20px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.95); }
+        .btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+        .rocket-container { background: #050505; border-radius: 25px; height: 300px; position: relative; overflow: hidden; border: 1px solid #222; margin-top: 10px; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: starMove linear infinite; }
+        @keyframes starMove { from { transform: translateY(-10px); } to { transform: translateY(310px); } }
+        #rocket-obj { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 60px; z-index: 10; display: none; }
+        #multiplier-txt { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 45px; font-weight: bold; color: white; z-index: 20; }
+        .nav { display: flex; position: fixed; bottom: 0; width: 100%; background: #0a0a0a; padding: 15px 0; border-top: 1px solid #222; z-index: 1000; }
+        .nav-item { flex: 1; opacity: 0.4; font-size: 10px; cursor: pointer; text-transform: uppercase; font-weight: bold; }
+        .nav-item.active { opacity: 1; color: var(--blue); }
+        #mushroom { width: 180px; margin-top: 30px; cursor: pointer; transition: 0.1s; filter: drop-shadow(0 0 15px rgba(255,255,255,0.1)); }
+        #mushroom:active { transform: scale(0.9); }
+        input { background: #111; color: white; border: 1px solid #333; padding: 12px; border-radius: 10px; outline: none; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div id="score">0</div>
-    <div id="mc-display">🪙 <span id="mc-val">0</span> MC</div>
+    <div id="mc-info">🪙 <span id="mc-val">0</span> MC</div>
+    <div id="inc-display" style="font-size: 12px; color: var(--green); margin-top: 5px;"></div>
 </div>
 
 <div class="content">
     <div id="game" class="page active-page">
-        <img id="mushroom" src="1000002276.png" style="width:220px; margin-top:30px; transition:0.05s" onclick="tap(event)">
-        <p style="color: #555; margin-top: 20px; font-weight: bold;">LVL: <span id="lvl">1</span> | КЛИК: +<span id="pwr-val">1</span></p>
+        <img id="mushroom" src="1000002276.png" onclick="tap()">
+        <p style="color: #666; margin-top: 20px;">СИЛА КЛИКА: +<span id="pwr-val">1</span></p>
     </div>
 
     <div id="shop" class="page">
-        <h2 style="color: var(--gold)">УЛУЧШЕНИЯ</h2>
-        <div class="card"><div><b>Сила тапа</b><br><small>+2 гриба</small></div><button class="btn" onclick="buyU()" id="ubtn">50</button></div>
-        <div class="card"><div><b>Промокод</b><br><small>Введи секрет</small></div><button class="btn" style="background:var(--green); color:white" onclick="usePromo()">ВВОД</button></div>
+        <div class="card" style="border-color: var(--gold)">
+            <div><b>Купить 1 MC</b><br><small>Цена: 500,000 🍄</small></div>
+            <button class="btn" onclick="buyMC()" style="background:var(--gold); color:black">КУПИТЬ</button>
+        </div>
+        <div class="card" style="border-color: var(--red)">
+            <div><b>Продать 1 MC</b><br><small>Выхлоп: 350,000 🍄</small></div>
+            <button class="btn" onclick="sellMC()" style="background:var(--red)">ПРОДАТЬ</button>
+        </div>
+        <div class="card">
+            <div><b>Апгрейд клика</b><br><small>Цена: <span id="ucost-txt">50</span></small></div>
+            <button class="btn" onclick="buyU()">УЛУЧШИТЬ</button>
+        </div>
     </div>
 
     <div id="pets" class="page">
-        <h2 style="color: var(--green)">ПИТОМЦЫ (ДОХОД)</h2>
-        <p style="font-size: 10px; color: #888; margin-bottom: 15px;">Максимум 2 одинаковых питомца</p>
+        <h2 style="color: var(--green)">ЗООПАРК</h2>
         <div id="pets-list"></div>
     </div>
 
     <div id="games" class="page">
-        <div class="rocket-area" id="ra">
-            <div class="flame" id="fl"></div>
-            <h2 style="margin: 0;">CRASH ROCKET</h2>
-            <div id="multiplier">1.00x</div>
-            <input type="number" id="bet" value="1" style="background:#222; color:white; border:1px solid var(--gold); padding:8px; border-radius:10px; width:70px; text-align:center;">
-            <button id="rbtn" class="btn" style="width:100%; margin-top:15px; height:50px;" onclick="rocketStart()">ВЗЛЕТ</button>
+        <div class="rocket-container" id="rc">
+            <div id="star-field"></div>
+            <div id="multiplier-txt">1.00x</div>
+            <img id="rocket-obj" src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png">
         </div>
-    </div>
-
-    <div id="leaders" class="page">
-        <h2 style="color: var(--gold)">TOP PLAYERS</h2>
-        <div id="leader-list"></div>
+        <div style="padding: 15px; background: #111; border-radius: 0 0 20px 20px;">
+            <input type="number" id="bet" value="1" style="width:60px;">
+            <button id="rbtn" class="btn" style="width:70%;" onclick="rocketStart()">СТАВКА</button>
+        </div>
     </div>
 
     <div id="admin" class="page">
         <h2 style="color: var(--red)">ADMIN PANEL</h2>
-        <div class="card" style="flex-direction:column; gap:10px">
-            <input type="text" id="target-id" style="width:100%; padding:10px; border-radius:10px; border:none; background:#111; color:white" placeholder="ID игрока">
-            <input type="number" id="gift-amt" style="width:100%; padding:10px; border-radius:10px; border:none; background:#111; color:white" placeholder="Сумма MC">
-            <button class="btn" style="background:var(--red); width:100%" onclick="admGive()">ВЫДАТЬ ВАЛЮТУ</button>
-        </div>
-        <button class="btn" style="background:#333; color:white; width:100%; margin-top:10px" onclick="tg.showAlert('Твой ID: ' + uId)">МОЙ ID</button>
+        <input type="text" id="target-id" placeholder="ID игрока" style="width:85%; margin-bottom: 10px;">
+        <input type="number" id="gift-amt" placeholder="Сумма MC" style="width:85%; margin-bottom: 10px;">
+        <button class="btn" style="background:var(--red); width:90%" onclick="admGive()">ВЫДАТЬ ВАЛЮТУ</button>
     </div>
 </div>
 
 <div class="nav">
-    <div class="nav-item active" onclick="showP('game', this)">🍄<br>ДОМ</div>
-    <div class="nav-item" onclick="showP('shop', this)">🛒<br>ШОП</div>
+    <div class="nav-item active" onclick="showP('game', this)">🍄<br>КЛИК</div>
+    <div class="nav-item" onclick="showP('shop', this)">🛒<br>РЫНОК</div>
     <div class="nav-item" onclick="showP('pets', this)">🐾<br>ЗОО</div>
     <div class="nav-item" onclick="showP('games', this)">🚀<br>ИГРЫ</div>
-    <div class="nav-item" onclick="showP('leaders', this)">🏆<br>ТОП</div>
-    <div class="nav-item" id="n-admin" style="display:none; color:var(--red)" onclick="showP('admin', this)">⚙️<br>АДМИН</div>
+    <div id="n-admin" class="nav-item" style="display:none; color:var(--red);" onclick="showP('admin', this)">⚙️<br>АДМИН</div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+    import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDXEYGzr0W0sQijK6CkFkwcTDx93LiVEkk",
         authDomain: "mushroomclicker.firebaseapp.com",
         projectId: "mushroomclicker",
-        storageBucket: "mushroomclicker.firebasestorage.app",
-        messagingSenderId: "828741182647",
-        appId: "1:828741182647:web:552f32674178a57e58d932",
         databaseURL: "https://mushroomclicker-default-rtdb.firebaseio.com"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const tg = window.Telegram.WebApp;
-    tg.expand();
-
-    window.uId = String(tg.initDataUnsafe?.user?.id || "local");
+    const uId = String(tg.initDataUnsafe?.user?.id || "local");
     const uName = tg.initDataUnsafe?.user?.first_name || "Gribnik";
-    const MY_ID = "5100051176"; 
+    const MY_ID = "5100051176";
 
-    // Данные
-    let count = 0, mCoins = 0, power = 1, uCost = 50;
-    let myPets = {}; // Храним количество питомцев: { rabbit: 1, cat: 2 }
-
+    let count = 0, mCoins = 0, power = 1, uCost = 50, myPets = {};
     const PETS_DATA = [
-        { id: 'rabbit', name: 'Кролик', icon: '🐰', price: 10, income: 1000000 },
-        { id: 'fox', name: 'Лиса', icon: '🦊', price: 50, income: 6000000 },
-        { id: 'wolf', name: 'Волк', icon: '🐺', price: 150, income: 20000000 },
-        { id: 'bear', name: 'Медведь', icon: '🐻', price: 300, income: 50000000 },
-        { id: 'dragon', name: 'Дракон', icon: '🐲', price: 500, income: 150000000 }
+        { id: 'rabbit', name: 'Кролик', icon: '🐰', price: 10, inc: 300 },
+        { id: 'fox', name: 'Лиса', icon: '🦊', price: 50, inc: 2000 },
+        { id: 'wolf', name: 'Волк', icon: '🐺', price: 150, inc: 10000 },
+        { id: 'dragon', name: 'Дракон', icon: '🐲', price: 500, inc: 50000 }
     ];
 
     async function init() {
-        const snap = await get(ref(db, 'users/' + uId));
-        if (snap.exists()) {
-            const d = snap.val();
-            count = d.s || 0; mCoins = d.c || 0; power = d.p || 1; uCost = d.uc || 50;
-            myPets = d.pets || {};
-        } else {
-            count = parseFloat(localStorage.getItem('m_cnt')) || 0;
-            mCoins = parseInt(localStorage.getItem('m_mc')) || 0;
-            power = parseInt(localStorage.getItem('m_pwr')) || 1;
+        const s = await get(ref(db, 'users/' + uId));
+        if(s.exists()){
+            const d = s.val();
+            count = d.s||0; mCoins = d.c||0; power = d.p||1; uCost = d.uc||50; myPets = d.pets||{};
         }
-        if (uId === MY_ID) document.getElementById('n-admin').style.display = 'block';
+        if(uId === MY_ID) document.getElementById('n-admin').style.display = 'block';
         
-        startPassiveIncome();
-        updateUI();
-        renderPets();
+        setInterval(activeIncome, 1000);
+        createStars(); updateUI(); renderPets();
     }
 
-    function startPassiveIncome() {
-        setInterval(() => {
-            let totalIncome = 0;
-            PETS_DATA.forEach(p => {
-                if(myPets[p.id]) totalIncome += (p.income / 3600) * myPets[p.id]; // Доход в секунду
-            });
-            if(totalIncome > 0) {
-                count += totalIncome;
-                updateUI();
-            }
-        }, 1000);
+    function activeIncome() {
+        let total = 0;
+        PETS_DATA.forEach(p => total += (myPets[p.id]||0) * p.inc);
+        if(total > 0) {
+            count += total;
+            updateUI();
+            save();
+        }
     }
 
     window.updateUI = function() {
         document.getElementById('score').innerText = Math.floor(count).toLocaleString();
         document.getElementById('mc-val').innerText = mCoins;
-        document.getElementById('ubtn').innerText = uCost;
+        document.getElementById('ucost-txt').innerText = uCost.toLocaleString();
         document.getElementById('pwr-val').innerText = power;
-        document.getElementById('lvl').innerText = Math.floor(count / 10000) + 1;
+        let tInc = 0; PETS_DATA.forEach(p => tInc += (myPets[p.id]||0) * p.inc);
+        document.getElementById('inc-display').innerText = tInc > 0 ? `Доход: +${tInc.toLocaleString()} 🍄/сек` : "";
     }
 
     function save() {
-        localStorage.setItem('m_cnt', count);
-        localStorage.setItem('m_mc', mCoins);
-        set(ref(db, 'users/' + uId), { n: uName, s: Math.floor(count), c: mCoins, p: power, uc: uCost, pets: myPets });
+        update(ref(db, 'users/' + uId), { n: uName, s: Math.floor(count), c: mCoins, p: power, uc: uCost, pets: myPets });
     }
 
-    window.tap = function(e) {
-        count += power;
-        const ani = document.createElement('div');
-        ani.className = 'click-ani';
-        ani.innerText = `+${power}`;
-        ani.style.left = e.pageX + 'px';
-        ani.style.top = e.pageY + 'px';
-        document.body.appendChild(ani);
-        setTimeout(() => ani.remove(), 600);
-        updateUI(); save();
-        if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-    }
+    window.tap = () => { count += power; updateUI(); save(); tg.HapticFeedback.impactOccurred('light'); }
 
-    // ЛОГИКА ПИТОМЦЕВ
-    function renderPets() {
-        const list = document.getElementById('pets-list');
-        list.innerHTML = PETS_DATA.map(p => {
-            const owned = myPets[p.id] || 0;
-            const canBuy = owned < 2;
-            return `
-                <div class="card">
-                    <div class="pet-icon">${p.icon}</div>
-                    <div class="pet-info">
-                        <b>${p.name}</b> <span class="pet-count">${owned}/2</span><br>
-                        <small style="color:var(--green)">+${(p.income/1000000).toFixed(1)}M грибов / 2ч</small>
-                    </div>
-                    <button class="btn" onclick="buyPet('${p.id}')" ${!canBuy ? 'disabled' : ''}>
-                        ${canBuy ? p.price + ' MC' : 'MAX'}
-                    </button>
-                </div>
-            `;
-        }).join('');
-    }
+    // АДМИНКА (ИСПРАВЛЕНО НАЧИСЛЕНИЕ ДРУГИМ)
+    window.admGive = async function() {
+        const tid = document.getElementById('target-id').value.trim();
+        const amt = parseInt(document.getElementById('gift-amt').value);
+        if(!tid || isNaN(amt)) return tg.showAlert("Заполни все поля!");
 
-    window.buyPet = function(id) {
-        const pet = PETS_DATA.find(p => p.id === id);
-        if (mCoins >= pet.price && (myPets[id] || 0) < 2) {
-            mCoins -= pet.price;
-            myPets[id] = (myPets[id] || 0) + 1;
-            tg.showAlert(`Ты купил ${pet.name}!`);
-            renderPets(); updateUI(); save();
-        } else if (mCoins < pet.price) {
-            tg.showAlert("Недостаточно MC!");
+        const userRef = ref(db, 'users/' + tid);
+        const snapshot = await get(userRef);
+
+        if(snapshot.exists()) {
+            const currentData = snapshot.val();
+            const newCoins = (currentData.c || 0) + amt;
+            // Используем update, чтобы не удалять другие данные игрока
+            await update(userRef, { c: newCoins });
+            tg.showAlert(`Игроку ${tid} выдано ${amt} MC!`);
+        } else {
+            tg.showAlert("Игрок с таким ID не найден в базе!");
         }
     }
 
     // РАКЕТА
-    let rRun = false, rM = 1.0, rInt;
+    let rRunning = false, rMult = 1.0, rInt;
     window.rocketStart = function() {
-        const b = parseInt(document.getElementById('bet').value);
-        if(rRun) { stopR(false); return; }
-        if(mCoins < b || b <= 0) return tg.showAlert("Мало MC!");
-        mCoins -= b; rRun = true; rM = 1.0; updateUI();
+        const bet = parseInt(document.getElementById('bet').value);
+        if(rRunning) { stopRocket(false); return; }
+        if(mCoins < bet || bet <= 0) return tg.showAlert("Мало MC!");
+
+        mCoins -= bet; rRunning = true; rMult = 1.0;
         document.getElementById('rbtn').innerText = "ЗАБРАТЬ!";
-        document.getElementById('rbtn').style.background = "var(--red)";
-        document.getElementById('ra').classList.add('rocket-on');
-        document.getElementById('fl').classList.add('flame-on');
+        document.getElementById('rocket-obj').style.display = 'block';
+        updateUI();
+
         rInt = setInterval(() => {
-            rM += 0.08;
-            document.getElementById('multiplier').innerText = rM.toFixed(2) + "x";
-            if(Math.random() < (rM * 0.016)) stopR(true);
+            rMult += 0.06;
+            document.getElementById('multiplier-txt').innerText = rMult.toFixed(2) + "x";
+            let bPos = 20 + (rMult * 12);
+            if(bPos < 220) document.getElementById('rocket-obj').style.bottom = bPos + "px";
+            if(Math.random() < (0.01 + rMult * 0.018)) stopRocket(true);
         }, 100);
     }
 
-    function stopR(c) {
-        clearInterval(rInt); rRun = false;
-        const b = parseInt(document.getElementById('bet').value);
-        document.getElementById('ra').classList.remove('rocket-on');
-        document.getElementById('fl').classList.remove('flame-on');
+    function stopRocket(c) {
+        clearInterval(rInt); rRunning = false;
+        const bet = parseInt(document.getElementById('bet').value);
         if(c) {
-            document.getElementById('multiplier').innerText = "💥";
+            document.getElementById('multiplier-txt').innerText = "BOOM!";
+            document.getElementById('rocket-obj').style.display = 'none';
             tg.HapticFeedback.notificationOccurred('error');
         } else {
-            mCoins += Math.floor(b * rM);
+            mCoins += Math.floor(bet * rMult);
             tg.HapticFeedback.notificationOccurred('success');
+            tg.showAlert("Выиграл " + Math.floor(bet * rMult) + " MC!");
         }
-        document.getElementById('rbtn').innerText = "ВЗЛЕТ";
-        document.getElementById('rbtn').style.background = "var(--gold)";
-        setTimeout(() => { document.getElementById('multiplier').innerText = "1.00x"; updateUI(); save(); }, 1500);
+        setTimeout(() => {
+            document.getElementById('rbtn').innerText = "СТАВКА";
+            document.getElementById('multiplier-txt').innerText = "1.00x";
+            document.getElementById('rocket-obj').style.display = 'none';
+            document.getElementById('rocket-obj').style.bottom = '20px';
+            updateUI(); save();
+        }, 1500);
     }
 
-    window.buyU = () => { if(count >= uCost) { count -= uCost; power += 2; uCost = Math.floor(uCost*1.7); updateUI(); save(); } }
-    
-    window.usePromo = () => {
-        const p = prompt("Введите код:");
-        if(p === "BOSS") { 
-            if(!localStorage.getItem('p_boss')) {
-                mCoins += 1000; localStorage.setItem('p_boss', '1');
-                tg.showAlert("BOSS активирован! +1000 MC");
-                updateUI(); save();
-            } else tg.showAlert("Уже вводили!");
-        }
+    // ОБМЕН И МАГАЗИН
+    window.buyMC = () => { if(count >= 500000) { count -= 500000; mCoins++; updateUI(); save(); } }
+    window.sellMC = () => { if(mCoins >= 1) { mCoins--; count += 350000; updateUI(); save(); } }
+    window.buyU = () => { if(count >= uCost) { count -= uCost; power++; uCost = Math.floor(uCost*1.7); updateUI(); save(); } }
+
+    window.renderPets = () => {
+        document.getElementById('pets-list').innerHTML = PETS_DATA.map(p => `
+            <div class="card">
+                <div>${p.icon} <b>${p.name}</b> (${myPets[p.id]||0}/2)<br><small>+${p.inc.toLocaleString()} 🍄/сек</small></div>
+                <button class="btn" onclick="buyPet('${p.id}')" ${ (myPets[p.id]||0) >= 2 ? 'disabled' : '' }>${p.price} MC</button>
+            </div>
+        `).join('');
     }
 
-    window.admGive = async function() {
-        const tid = document.getElementById('target-id').value;
-        const amt = parseInt(document.getElementById('gift-amt').value);
-        const s = await get(ref(db, 'users/' + tid));
-        if(s.exists()){
-            let d = s.val(); d.c = (d.c || 0) + amt;
-            await set(ref(db, 'users/' + tid), d);
-            tg.showAlert("Начислено!");
-        } else tg.showAlert("ID не найден");
+    window.buyPet = (id) => {
+        const p = PETS_DATA.find(x => x.id === id);
+        if(mCoins >= p.price && (myPets[id]||0) < 2) {
+            mCoins -= p.price; myPets[id] = (myPets[id]||0) + 1;
+            renderPets(); updateUI(); save();
+        }
     }
 
     window.showP = (p, el) => {
-        document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
+        document.querySelectorAll('.page').forEach(x => x.classList.remove('active-page'));
         document.getElementById(p).classList.add('active-page');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
         el.classList.add('active');
-        if(p === 'leaders') {
-            onValue(ref(db, 'users/'), (s) => {
-                let a = []; s.forEach(x => { a.push(x.val()) });
-                a.sort((x,y) => y.s - x.s);
-                document.getElementById('leader-list').innerHTML = a.slice(0,20).map((u,i) => 
-                    `<div class="card"><span>${i+1}. ${u.n}</span><span>${Math.floor(u.s).toLocaleString()} 🍄</span></div>`
-                ).join('');
-            });
+    }
+
+    function createStars() {
+        const field = document.getElementById('star-field');
+        for(let i=0; i<20; i++) {
+            let s = document.createElement('div');
+            s.className = 'star';
+            s.style.left = Math.random() * 100 + "%";
+            s.style.width = s.style.height = Math.random() * 3 + "px";
+            s.style.animationDuration = (Math.random() * 2 + 1) + "s";
+            field.appendChild(s);
         }
     }
 
