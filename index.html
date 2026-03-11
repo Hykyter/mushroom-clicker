@@ -3,91 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mushroom Coin Evolution</title>
+    <title>Mushroom Evolution FIX</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --gold: #ffeb3b; --green: #00e676; --bg: #1a0f0a; }
-        body { background: radial-gradient(circle at top, #2c1e14 0%, #000 100%); color: white; text-align: center; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; touch-action: manipulation; }
+        :root { --gold: #ffeb3b; --green: #00e676; --red: #ff5252; }
+        body { background: #000; color: white; text-align: center; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         
-        /* Шапка с неоном */
-        .header { margin: 20px 15px; padding: 20px; border-radius: 25px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
-        #score { font-size: 55px; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px rgba(255, 235, 59, 0.4); margin: 0; transition: 0.1s; }
-        #mcoin-display { font-size: 22px; color: var(--green); font-weight: bold; margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        
-        .content { flex-grow: 1; overflow-y: auto; padding-bottom: 120px; z-index: 1; }
-        .page { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
-        .active-page { display: block !important; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .header { background: rgba(255,255,255,0.05); margin: 15px; padding: 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        #score { font-size: 50px; font-weight: 900; color: var(--gold); margin: 0; }
+        #mc-display { color: var(--green); font-weight: bold; font-size: 18px; }
 
-        /* Анимация клика */
-        .click-ani { position: absolute; color: var(--gold); font-weight: bold; pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; font-size: 24px; }
+        .content { height: calc(100vh - 200px); overflow-y: auto; position: relative; }
+        .page { display: none; padding: 20px; padding-bottom: 100px; }
+        .active-page { display: block !important; }
+
+        /* Тапалка */
+        #mushroom { width: 220px; margin-top: 30px; transition: transform 0.05s; z-index: 10; position: relative; }
+        #mushroom:active { transform: scale(0.9); }
+        .click-ani { position: absolute; color: var(--gold); font-weight: bold; animation: floatUp 0.6s forwards; pointer-events: none; z-index: 1000; }
         @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
 
-        #mushroom { width: 240px; filter: drop-shadow(0 0 30px rgba(255,255,255,0.1)); transition: transform 0.05s; margin-top: 40px; -webkit-user-drag: none; }
-        #mushroom:active { transform: scale(0.9); }
+        /* Кнопки и карточки */
+        .card { background: rgba(255,255,255,0.07); padding: 20px; border-radius: 20px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
+        .btn { background: var(--gold); color: black; border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; z-index: 20; position: relative; }
+        .btn:active { transform: scale(0.95); opacity: 0.8; }
 
-        /* Карточки в шопе */
-        .shop-item { background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%); padding: 20px; margin-bottom: 15px; border-radius: 22px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08); }
-        .buy-btn { background: var(--gold); color: #000; padding: 12px 22px; border-radius: 15px; font-weight: 800; border: none; box-shadow: 0 5px 15px rgba(255,235,59,0.3); }
+        /* Ракета */
+        .rocket-box { background: #111; border: 2px solid #333; border-radius: 30px; padding: 25px; position: relative; transition: 0.3s; }
+        .rocket-active { border-color: var(--gold); box-shadow: 0 0 30px rgba(255,235,59,0.2); animation: shake 0.1s infinite; }
+        #multiplier { font-size: 60px; font-weight: bold; color: var(--gold); margin: 20px 0; }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
 
-        /* Улучшенная Ракета */
-        .rocket-card { background: #0a0a0a; border-radius: 30px; padding: 30px; border: 2px solid #333; position: relative; overflow: hidden; transition: 0.3s; }
-        .rocket-card.active { border-color: var(--gold); box-shadow: 0 0 40px rgba(255,235,59,0.2); }
-        #multiplier { font-size: 70px; font-family: 'Courier New', monospace; font-weight: bold; margin: 15px 0; color: var(--gold); position: relative; z-index: 2; }
-        .shake { animation: shake 0.1s infinite; }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 10% { transform: translate(-1px, -2px); } 100% { transform: translate(1px, -1px); } }
-        
-        .flame { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); width: 150px; height: 80px; background: radial-gradient(ellipse at center, #ff5722 0%, rgba(255,87,34,0) 70%); filter: blur(15px); opacity: 0; transition: 0.3s; }
-        .flame-on { opacity: 0.8; animation: pulse 0.1s infinite alternate; }
-        @keyframes pulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.1); } }
-
-        /* Меню */
-        .nav { display: flex; position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); padding: 25px 0; border-top: 1px solid rgba(255,255,255,0.1); }
-        .nav-item { flex: 1; opacity: 0.4; font-size: 12px; transition: 0.3s; cursor: pointer; }
-        .nav-item.active { opacity: 1; color: var(--gold); transform: translateY(-5px); }
+        /* Навигация */
+        .nav { position: fixed; bottom: 0; width: 100%; background: #0a0a0a; display: flex; padding: 15px 0; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
+        .nav-item { flex: 1; opacity: 0.5; font-size: 10px; cursor: pointer; }
+        .nav-item.active { opacity: 1; color: var(--gold); }
     </style>
 </head>
-<body onclick="spawnParticle(event)">
+<body>
 
 <div class="header">
     <div id="score">0</div>
-    <div id="mcoin-display"><span>🪙</span> <span id="mc-val">0</span> MC</div>
+    <div id="mc-display">🪙 <span id="mc-val">0</span> MC</div>
 </div>
 
 <div class="content">
     <div id="game" class="page active-page">
-        <img id="mushroom" src="1000002276.png" onclick="clickMushroom(event)" onerror="this.src='https://img.icons8.com/emoji/256/mushroom-emoji.png'">
-        <p id="hint" style="color: #444; margin-top: 40px; font-weight: bold; letter-spacing: 1px;">LEVEL 1: ГРИБНИК</p>
+        <img id="mushroom" src="1000002276.png" onclick="handleTap(event)" onerror="this.src='https://img.icons8.com/emoji/256/mushroom-emoji.png'">
+        <p style="color: #444; margin-top: 30px;">LEVEL: <span id="lvl">1</span></p>
     </div>
 
     <div id="shop" class="page">
-        <h2 style="color: var(--gold)">УЛУЧШЕНИЯ</h2>
-        <div class="shop-item"><div><b>Сила тапа</b><br><small>+2 к клику</small></div><button class="buy-btn" onclick="buyUpgrade()" id="u-btn">50</button></div>
-        <div class="shop-item"><div><b>Авто-ферма</b><br><small>+50 🍄/час</small></div><button class="buy-btn" onclick="buyFarm()" id="f-btn">1k</button></div>
+        <h2 style="color: var(--gold)">МАГАЗИН</h2>
+        <div class="card">
+            <div style="text-align:left"><b>Сила клика</b><br><small>+2 к тапу</small></div>
+            <button class="btn" onclick="buyUpgrade()">КУПИТЬ: <span id="u-cost">50</span></button>
+        </div>
+        <div class="card">
+            <div style="text-align:left"><b>Ферма</b><br><small>Автодоход</small></div>
+            <button class="btn" onclick="buyFarm()">КУПИТЬ: <span id="f-cost">1000</span></button>
+        </div>
+        <button class="btn" style="width:100%; background: var(--green); color:white" onclick="exchange()">ОБМЕН (500к на 1 MC)</button>
     </div>
 
     <div id="games" class="page">
-        <div class="rocket-card" id="r-card">
-            <div class="flame" id="flame"></div>
-            <h2 style="margin: 0; letter-spacing: 3px;">CRASH ROCKET</h2>
+        <div class="rocket-box" id="r-box">
+            <h3>CRASH ROCKET</h3>
             <div id="multiplier">1.00x</div>
-            <p id="r-status" style="color: #666">Ставь MC и забирай вовремя</p>
-            <input type="number" id="bet" value="1" style="background: #1a1a1a; color: white; border: 1px solid #333; padding: 12px; border-radius: 12px; width: 80px; text-align: center; font-size: 20px;">
-            <button id="r-btn" class="buy-btn" style="width: 100%; margin-top: 20px; height: 60px;" onclick="startRocket()">ПОЕХАЛИ</button>
+            <input type="number" id="bet" value="1" style="width:60px; padding:10px; border-radius:10px; background:#222; color:white; border:1px solid var(--gold); text-align:center">
+            <button id="r-btn" class="btn" style="width:100%; margin-top:20px; height:50px" onclick="rocketAction()">СТАРТ</button>
         </div>
     </div>
 
     <div id="leaders" class="page">
-        <h2 style="color: var(--gold)">ЛИДЕРЫ МИРА</h2>
+        <h2 style="color: var(--gold)">ТОП ИГРОКОВ</h2>
         <div id="leader-list"></div>
+        <button class="btn" style="margin-top:30px; background:#444; color:white; font-size:10px" onclick="recoverMushrooms()">Грибы не вернулись? Жми!</button>
     </div>
 </div>
 
 <div class="nav">
-    <div class="nav-item active" id="n-game" onclick="showPage('game')">🍄<br>ГЛАВНАЯ</div>
-    <div class="nav-item" id="n-shop" onclick="showPage('shop')">🛒<br>МАГАЗИН</div>
-    <div class="nav-item" id="n-games" onclick="showPage('games')">🚀<br>ИГРЫ</div>
-    <div class="nav-item" id="n-leaders" onclick="showPage('leaders')">🏆<br>ТОП</div>
+    <div class="nav-item active" onclick="showPage('game', this)">🍄<br>ДОМ</div>
+    <div class="nav-item" onclick="showPage('shop', this)">🛒<br>ШОП</div>
+    <div class="nav-item" onclick="showPage('games', this)">🚀<br>ИГРЫ</div>
+    <div class="nav-item" onclick="showPage('leaders', this)">🏆<br>ТОП</div>
 </div>
 
 <script type="module">
@@ -109,133 +108,129 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    const uId = tg.initDataUnsafe?.user?.id || "dev_user";
+    const uId = tg.initDataUnsafe?.user?.id || "local_user";
     const uName = tg.initDataUnsafe?.user?.first_name || "Gribnik";
 
-    // Состояние
-    let count = 0, mCoins = 0, power = 1, uCost = 50, fRate = 0, fCost = 1000;
+    // Данные
+    let count = 0, mCoins = 0, power = 1, uCost = 50, fCost = 1000;
 
-    // ВОССТАНОВЛЕНИЕ ГРИБОВ (Улучшенное)
-    async function init() {
+    async function load() {
         const snap = await get(ref(db, 'users/' + uId));
         if (snap.exists()) {
             const d = snap.val();
             count = d.s || 0; mCoins = d.c || 0; power = d.p || 1;
-            uCost = d.uc || 50; fRate = d.fr || 0; fCost = d.fc || 1000;
+            uCost = d.uc || 50; fCost = d.fc || 1000;
         } else {
-            // Если в базе 0, пытаемся достать из памяти телефона (localStorage)
-            count = parseFloat(localStorage.getItem('m_cnt')) || 0;
-            mCoins = parseInt(localStorage.getItem('m_mc')) || 0;
-            power = parseInt(localStorage.getItem('m_pwr')) || 1;
+            recoverMushrooms(); // Если в базе нет, ищем в телефоне
         }
         updateUI();
+    }
+
+    window.recoverMushrooms = function() {
+        count = parseFloat(localStorage.getItem('m_cnt')) || count;
+        mCoins = parseInt(localStorage.getItem('m_mc')) || mCoins;
+        power = parseInt(localStorage.getItem('m_pwr')) || power;
+        tg.showAlert("Попытка восстановления завершена!");
+        updateUI(); save();
     }
 
     window.updateUI = function() {
         document.getElementById('score').innerText = Math.floor(count).toLocaleString();
         document.getElementById('mc-val').innerText = mCoins;
-        document.getElementById('u-btn').innerText = uCost;
-        document.getElementById('f-btn').innerText = fCost;
-        document.getElementById('hint').innerText = count > 100000 ? "LEVEL 2: МАСТЕР" : "LEVEL 1: ГРИБНИК";
+        document.getElementById('u-cost').innerText = uCost;
+        document.getElementById('f-cost').innerText = fCost;
+        document.getElementById('lvl').innerText = Math.floor(count / 10000) + 1;
     }
 
     function save() {
         localStorage.setItem('m_cnt', count);
         localStorage.setItem('m_mc', mCoins);
         localStorage.setItem('m_pwr', power);
-        set(ref(db, 'users/' + uId), { n: uName, s: Math.floor(count), c: mCoins, p: power, uc: uCost, fr: fRate, fc: fCost });
+        set(ref(db, 'users/' + uId), { n: uName, s: Math.floor(count), c: mCoins, p: power, uc: uCost, fc: fCost });
     }
 
-    window.clickMushroom = function(e) {
+    window.handleTap = function(e) {
         count += power;
-        // Анимация цифр
-        const el = document.createElement('div');
-        el.className = 'click-ani';
-        el.innerText = `+${power}`;
-        el.style.left = `${e.pageX}px`;
-        el.style.top = `${e.pageY}px`;
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 600);
-        
+        const ani = document.createElement('div');
+        ani.className = 'click-ani';
+        ani.innerText = `+${power}`;
+        ani.style.left = e.pageX + 'px';
+        ani.style.top = e.pageY + 'px';
+        document.body.appendChild(ani);
+        setTimeout(() => ani.remove(), 600);
         updateUI(); save();
         if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
     }
 
-    // РАКЕТА С АНИМАЦИЕЙ
+    window.buyUpgrade = function() {
+        if(count >= uCost) { count -= uCost; power += 2; uCost = Math.floor(uCost * 1.7); updateUI(); save(); }
+        else { tg.showAlert("Мало грибов!"); }
+    }
+
+    window.buyFarm = function() {
+        if(count >= fCost) { count -= fCost; tg.showAlert("Ферма куплена! (Автодоход скоро)"); fCost *= 2; updateUI(); save(); }
+    }
+
+    window.exchange = function() {
+        if(count >= 500000) { count -= 500000; mCoins += 1; updateUI(); save(); }
+    }
+
+    window.showPage = function(p, el) {
+        document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
+        document.getElementById(p).classList.add('active-page');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+        if(p === 'leaders') loadLeaders();
+    }
+
+    // РАКЕТА
     let rRunning = false, rMult = 1.0, rInt;
-    window.startRocket = function() {
+    window.rocketAction = function() {
         const bet = parseInt(document.getElementById('bet').value);
         const btn = document.getElementById('r-btn');
-        const card = document.getElementById('r-card');
-        const flame = document.getElementById('flame');
-        const multEl = document.getElementById('multiplier');
-
+        const box = document.getElementById('r-box');
         if(rRunning) { stopRocket(false); return; }
-        if(mCoins < bet || bet <= 0) { tg.showAlert("Нужно больше MC!"); return; }
-
-        mCoins -= bet; rRunning = true; rMult = 1.0;
-        updateUI();
+        if(mCoins < bet || bet <= 0) { tg.showAlert("Мало MC!"); return; }
         
-        btn.innerText = "ЗАБРАТЬ";
-        btn.style.background = "#ff5252";
-        card.classList.add('active');
-        flame.classList.add('flame-on');
-        multEl.classList.add('shake');
-
+        mCoins -= bet; rRunning = true; rMult = 1.0; updateUI();
+        btn.innerText = "ЗАБРАТЬ!"; btn.style.background = "#ff5252";
+        box.classList.add('rocket-active');
+        
         rInt = setInterval(() => {
-            rMult += 0.07;
-            multEl.innerText = rMult.toFixed(2) + "x";
-            if(Math.random() < (rMult * 0.015)) stopRocket(true);
+            rMult += 0.08;
+            document.getElementById('multiplier').innerText = rMult.toFixed(2) + "x";
+            if(Math.random() < (rMult * 0.018)) stopRocket(true);
         }, 100);
     }
 
     function stopRocket(crash) {
-        clearInterval(rInt);
-        rRunning = false;
+        clearInterval(rInt); rRunning = false;
+        const box = document.getElementById('r-box');
         const btn = document.getElementById('r-btn');
-        const multEl = document.getElementById('multiplier');
         const bet = parseInt(document.getElementById('bet').value);
-
-        document.getElementById('r-card').classList.remove('active');
-        document.getElementById('flame').classList.remove('flame-on');
-        multEl.classList.remove('shake');
-
+        box.classList.remove('rocket-active');
         if(crash) {
-            multEl.innerText = "💥";
-            multEl.style.color = "#ff5252";
+            document.getElementById('multiplier').innerText = "💥";
             tg.HapticFeedback.notificationOccurred('error');
         } else {
-            const win = Math.floor(bet * rMult);
-            mCoins += win;
+            mCoins += Math.floor(bet * rMult);
             tg.HapticFeedback.notificationOccurred('success');
         }
-        
-        btn.innerText = "ПОЕХАЛИ";
-        btn.style.background = "var(--gold)";
-        setTimeout(() => { multEl.style.color = "var(--gold)"; updateUI(); save(); }, 1500);
+        btn.innerText = "СТАРТ"; btn.style.background = "var(--gold)";
+        save(); updateUI();
     }
 
-    // Прочее
-    window.buyUpgrade = () => { if(count >= uCost) { count -= uCost; power += 2; uCost = Math.floor(uCost*1.8); updateUI(); save(); } }
-    window.showPage = (p) => {
-        document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
-        document.getElementById(p).classList.add('active-page');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('n-'+p).classList.add('active');
-        if(p === 'leaders') loadLeaders();
-    }
-    
     function loadLeaders() {
         onValue(ref(db, 'users/'), (s) => {
             let a = []; s.forEach(x => { a.push(x.val()) });
             a.sort((x,y) => y.s - x.s);
-            document.getElementById('leader-list').innerHTML = a.slice(0,10).map((u,i) => 
-                `<div class="shop-item"><span>${i+1}. ${u.n}</span><span>${u.s.toLocaleString()} 🍄</span></div>`
+            document.getElementById('leader-list').innerHTML = a.slice(0,15).map((u,i) => 
+                `<div class="card"><span>${i+1}. ${u.n}</span><span>${u.s.toLocaleString()} 🍄</span></div>`
             ).join('');
         });
     }
 
-    init();
+    load();
 </script>
 </body>
 </html>
