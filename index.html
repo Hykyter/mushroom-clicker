@@ -3,48 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mushroom Coin: Creator Edition</title>
+    <title>Mushroom Evolution: Pets Update</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --gold: #ffeb3b; --green: #00e676; --red: #ff5252; --glass: rgba(255, 255, 255, 0.05); }
-        body { background: radial-gradient(circle at top, #2c1e14 0%, #000 100%); color: white; text-align: center; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+        body { background: radial-gradient(circle at top, #2c1e14 0%, #000 100%); color: white; text-align: center; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         
-        .header { margin: 20px 15px; padding: 20px; border-radius: 25px; background: var(--glass); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        #score { font-size: 50px; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px rgba(255, 235, 59, 0.4); margin: 0; }
-        #mc-display { font-size: 20px; color: var(--green); font-weight: bold; margin-top: 5px; }
+        .header { margin: 15px; padding: 15px; border-radius: 20px; background: var(--glass); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+        #score { font-size: 45px; font-weight: 900; color: var(--gold); text-shadow: 0 0 15px rgba(255, 235, 59, 0.4); margin: 0; }
+        #mc-display { font-size: 18px; color: var(--green); font-weight: bold; }
 
-        .content { flex-grow: 1; overflow-y: auto; padding-bottom: 120px; position: relative; z-index: 1; }
-        .page { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
+        .content { flex-grow: 1; overflow-y: auto; padding-bottom: 120px; position: relative; }
+        .page { display: none; padding: 15px; animation: fadeIn 0.3s ease; }
         .active-page { display: block !important; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Тапалка */
-        #mushroom { width: 240px; cursor: pointer; transition: transform 0.05s; filter: drop-shadow(0 0 30px rgba(255,255,255,0.1)); margin-top: 40px; }
-        #mushroom:active { transform: scale(0.92); }
-        .click-ani { position: absolute; color: var(--gold); font-weight: bold; pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 1000; font-size: 24px; }
-        @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100px); } }
+        /* Элементы списков */
+        .card { background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%); padding: 15px; margin-bottom: 12px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08); }
+        .btn { background: var(--gold); color: #000; padding: 10px 18px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; }
+        .btn:disabled { background: #444; color: #888; cursor: not-allowed; }
 
-        /* Карточки */
-        .card { background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%); padding: 20px; margin-bottom: 15px; border-radius: 22px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08); }
-        .btn { background: var(--gold); color: #000; padding: 12px 22px; border-radius: 15px; font-weight: 800; border: none; cursor: pointer; box-shadow: 0 5px 15px rgba(255,235,59,0.3); }
-        .btn:active { transform: scale(0.95); }
-
-        /* Ракетка */
-        .rocket-area { background: #0a0a0a; border-radius: 30px; padding: 30px; border: 2px solid #333; position: relative; overflow: hidden; transition: 0.3s; }
-        .rocket-on { border-color: var(--gold); box-shadow: 0 0 40px rgba(255,235,59,0.2); animation: shake 0.1s infinite; }
-        #multiplier { font-size: 70px; font-weight: bold; color: var(--gold); margin: 15px 0; text-shadow: 0 0 25px rgba(255,235,59,0.6); }
+        /* Ракета */
+        .rocket-area { background: #0a0a0a; border-radius: 25px; padding: 25px; border: 2px solid #333; position: relative; overflow: hidden; }
+        .rocket-on { border-color: var(--gold); animation: shake 0.1s infinite; }
+        #multiplier { font-size: 60px; font-weight: bold; color: var(--gold); margin: 10px 0; }
         @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
-        .flame { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); width: 120px; height: 60px; background: radial-gradient(ellipse at center, #ff5722 0%, rgba(255,87,34,0) 70%); filter: blur(15px); opacity: 0; }
+        .flame { position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); width: 100px; height: 50px; background: radial-gradient(ellipse at center, #ff5722 0%, rgba(255,87,34,0) 70%); filter: blur(10px); opacity: 0; }
         .flame-on { opacity: 0.8; animation: pulse 0.1s infinite alternate; }
-        @keyframes pulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.2); } }
-
-        /* Админка */
-        .adm-input { width: 100%; padding: 12px; margin: 8px 0; background: #111; border: 1px solid #444; color: white; border-radius: 12px; box-sizing: border-box; }
 
         /* Навигация */
-        .nav { display: flex; position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); padding: 25px 0; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
-        .nav-item { flex: 1; opacity: 0.4; font-size: 11px; transition: 0.3s; cursor: pointer; font-weight: bold; }
-        .nav-item.active { opacity: 1; color: var(--gold); transform: translateY(-5px); }
+        .nav { display: flex; position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.9); padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
+        .nav-item { flex: 1; opacity: 0.4; font-size: 10px; transition: 0.3s; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+        .nav-item.active { opacity: 1; color: var(--gold); transform: translateY(-3px); }
+
+        /* Питомцы */
+        .pet-icon { font-size: 30px; margin-right: 15px; }
+        .pet-info { text-align: left; flex-grow: 1; }
+        .pet-count { font-size: 10px; color: var(--gold); background: rgba(255,235,59,0.1); padding: 2px 6px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -56,24 +51,29 @@
 
 <div class="content">
     <div id="game" class="page active-page">
-        <img id="mushroom" src="1000002276.png" onclick="tap(event)">
-        <p style="color: #444; margin-top: 30px; font-weight: bold; letter-spacing: 2px;">LVL: <span id="lvl">1</span></p>
+        <img id="mushroom" src="1000002276.png" style="width:220px; margin-top:30px; transition:0.05s" onclick="tap(event)">
+        <p style="color: #555; margin-top: 20px; font-weight: bold;">LVL: <span id="lvl">1</span> | КЛИК: +<span id="pwr-val">1</span></p>
     </div>
 
     <div id="shop" class="page">
         <h2 style="color: var(--gold)">УЛУЧШЕНИЯ</h2>
         <div class="card"><div><b>Сила тапа</b><br><small>+2 гриба</small></div><button class="btn" onclick="buyU()" id="ubtn">50</button></div>
-        <div class="card"><div><b>Ферма</b><br><small>Автодоход</small></div><button class="btn" onclick="buyF()" id="fbtn">1k</button></div>
-        <div class="card" style="border-color: var(--green)"><div><b>Промокод</b><br><small>Введите секрет</small></div><button class="btn" style="background:var(--green); color:white" onclick="usePromo()">ВВОД</button></div>
+        <div class="card"><div><b>Промокод</b><br><small>Введи секрет</small></div><button class="btn" style="background:var(--green); color:white" onclick="usePromo()">ВВОД</button></div>
+    </div>
+
+    <div id="pets" class="page">
+        <h2 style="color: var(--green)">ПИТОМЦЫ (ДОХОД)</h2>
+        <p style="font-size: 10px; color: #888; margin-bottom: 15px;">Максимум 2 одинаковых питомца</p>
+        <div id="pets-list"></div>
     </div>
 
     <div id="games" class="page">
         <div class="rocket-area" id="ra">
             <div class="flame" id="fl"></div>
-            <h2 style="margin: 0; letter-spacing: 3px;">CRASH ROCKET</h2>
+            <h2 style="margin: 0;">CRASH ROCKET</h2>
             <div id="multiplier">1.00x</div>
-            <input type="number" id="bet" value="1" style="background:#222; color:white; border:1px solid var(--gold); padding:10px; border-radius:10px; width:80px; text-align:center; font-size:20px">
-            <button id="rbtn" class="btn" style="width:100%; margin-top:20px; height:60px; font-size:18px" onclick="rocketStart()">ВЗЛЕТ</button>
+            <input type="number" id="bet" value="1" style="background:#222; color:white; border:1px solid var(--gold); padding:8px; border-radius:10px; width:70px; text-align:center;">
+            <button id="rbtn" class="btn" style="width:100%; margin-top:15px; height:50px;" onclick="rocketStart()">ВЗЛЕТ</button>
         </div>
     </div>
 
@@ -84,21 +84,22 @@
 
     <div id="admin" class="page">
         <h2 style="color: var(--red)">ADMIN PANEL</h2>
-        <div class="card" style="flex-direction:column; align-items:flex-start">
-            <p style="margin:0 0 10px 0">Начислить MC:</p>
-            <input type="text" id="target-id" class="adm-input" placeholder="ID игрока">
-            <input type="number" id="gift-amt" class="adm-input" placeholder="Количество MC">
-            <button class="btn" style="background:var(--red); width:100%" onclick="admGive()">ВЫДАТЬ</button>
+        <div class="card" style="flex-direction:column; gap:10px">
+            <input type="text" id="target-id" style="width:100%; padding:10px; border-radius:10px; border:none; background:#111; color:white" placeholder="ID игрока">
+            <input type="number" id="gift-amt" style="width:100%; padding:10px; border-radius:10px; border:none; background:#111; color:white" placeholder="Сумма MC">
+            <button class="btn" style="background:var(--red); width:100%" onclick="admGive()">ВЫДАТЬ ВАЛЮТУ</button>
         </div>
+        <button class="btn" style="background:#333; color:white; width:100%; margin-top:10px" onclick="tg.showAlert('Твой ID: ' + uId)">МОЙ ID</button>
     </div>
 </div>
 
 <div class="nav">
-    <div class="nav-item active" id="n-game" onclick="showP('game')">🍄<br>ДОМ</div>
-    <div class="nav-item" id="n-shop" onclick="showP('shop')">🛒<br>ШОП</div>
-    <div class="nav-item" id="n-games" onclick="showP('games')">🚀<br>ИГРЫ</div>
-    <div class="nav-item" id="n-leaders" onclick="showP('leaders')">🏆<br>ТОП</div>
-    <div class="nav-item" id="n-admin" style="display:none; color:var(--red)" onclick="showP('admin')">⚙️<br>АДМИН</div>
+    <div class="nav-item active" onclick="showP('game', this)">🍄<br>ДОМ</div>
+    <div class="nav-item" onclick="showP('shop', this)">🛒<br>ШОП</div>
+    <div class="nav-item" onclick="showP('pets', this)">🐾<br>ЗОО</div>
+    <div class="nav-item" onclick="showP('games', this)">🚀<br>ИГРЫ</div>
+    <div class="nav-item" onclick="showP('leaders', this)">🏆<br>ТОП</div>
+    <div class="nav-item" id="n-admin" style="display:none; color:var(--red)" onclick="showP('admin', this)">⚙️<br>АДМИН</div>
 </div>
 
 <script type="module">
@@ -120,40 +121,65 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    const uId = tg.initDataUnsafe?.user?.id || "local";
+    window.uId = String(tg.initDataUnsafe?.user?.id || "local");
     const uName = tg.initDataUnsafe?.user?.first_name || "Gribnik";
-    const MY_ID = 5100051176;
+    const MY_ID = "5100051176"; 
 
-    let count = 0, mCoins = 0, power = 1, uCost = 50, fCost = 1000;
+    // Данные
+    let count = 0, mCoins = 0, power = 1, uCost = 50;
+    let myPets = {}; // Храним количество питомцев: { rabbit: 1, cat: 2 }
+
+    const PETS_DATA = [
+        { id: 'rabbit', name: 'Кролик', icon: '🐰', price: 10, income: 1000000 },
+        { id: 'fox', name: 'Лиса', icon: '🦊', price: 50, income: 6000000 },
+        { id: 'wolf', name: 'Волк', icon: '🐺', price: 150, income: 20000000 },
+        { id: 'bear', name: 'Медведь', icon: '🐻', price: 300, income: 50000000 },
+        { id: 'dragon', name: 'Дракон', icon: '🐲', price: 500, income: 150000000 }
+    ];
 
     async function init() {
         const snap = await get(ref(db, 'users/' + uId));
         if (snap.exists()) {
             const d = snap.val();
-            count = d.s || 0; mCoins = d.c || 0; power = d.p || 1;
-            uCost = d.uc || 50; fCost = d.fc || 1000;
+            count = d.s || 0; mCoins = d.c || 0; power = d.p || 1; uCost = d.uc || 50;
+            myPets = d.pets || {};
         } else {
             count = parseFloat(localStorage.getItem('m_cnt')) || 0;
             mCoins = parseInt(localStorage.getItem('m_mc')) || 0;
             power = parseInt(localStorage.getItem('m_pwr')) || 1;
         }
-        if (uId == MY_ID) document.getElementById('n-admin').style.display = 'block';
+        if (uId === MY_ID) document.getElementById('n-admin').style.display = 'block';
+        
+        startPassiveIncome();
         updateUI();
+        renderPets();
+    }
+
+    function startPassiveIncome() {
+        setInterval(() => {
+            let totalIncome = 0;
+            PETS_DATA.forEach(p => {
+                if(myPets[p.id]) totalIncome += (p.income / 3600) * myPets[p.id]; // Доход в секунду
+            });
+            if(totalIncome > 0) {
+                count += totalIncome;
+                updateUI();
+            }
+        }, 1000);
     }
 
     window.updateUI = function() {
         document.getElementById('score').innerText = Math.floor(count).toLocaleString();
         document.getElementById('mc-val').innerText = mCoins;
         document.getElementById('ubtn').innerText = uCost;
-        document.getElementById('fbtn').innerText = fCost;
+        document.getElementById('pwr-val').innerText = power;
         document.getElementById('lvl').innerText = Math.floor(count / 10000) + 1;
     }
 
     function save() {
         localStorage.setItem('m_cnt', count);
         localStorage.setItem('m_mc', mCoins);
-        localStorage.setItem('m_pwr', power);
-        set(ref(db, 'users/' + uId), { n: uName, s: Math.floor(count), c: mCoins, p: power, uc: uCost, fc: fCost });
+        set(ref(db, 'users/' + uId), { n: uName, s: Math.floor(count), c: mCoins, p: power, uc: uCost, pets: myPets });
     }
 
     window.tap = function(e) {
@@ -169,12 +195,45 @@
         if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
     }
 
-    // РАКЕТА (GIFTUP STYLE)
+    // ЛОГИКА ПИТОМЦЕВ
+    function renderPets() {
+        const list = document.getElementById('pets-list');
+        list.innerHTML = PETS_DATA.map(p => {
+            const owned = myPets[p.id] || 0;
+            const canBuy = owned < 2;
+            return `
+                <div class="card">
+                    <div class="pet-icon">${p.icon}</div>
+                    <div class="pet-info">
+                        <b>${p.name}</b> <span class="pet-count">${owned}/2</span><br>
+                        <small style="color:var(--green)">+${(p.income/1000000).toFixed(1)}M грибов / 2ч</small>
+                    </div>
+                    <button class="btn" onclick="buyPet('${p.id}')" ${!canBuy ? 'disabled' : ''}>
+                        ${canBuy ? p.price + ' MC' : 'MAX'}
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    window.buyPet = function(id) {
+        const pet = PETS_DATA.find(p => p.id === id);
+        if (mCoins >= pet.price && (myPets[id] || 0) < 2) {
+            mCoins -= pet.price;
+            myPets[id] = (myPets[id] || 0) + 1;
+            tg.showAlert(`Ты купил ${pet.name}!`);
+            renderPets(); updateUI(); save();
+        } else if (mCoins < pet.price) {
+            tg.showAlert("Недостаточно MC!");
+        }
+    }
+
+    // РАКЕТА
     let rRun = false, rM = 1.0, rInt;
     window.rocketStart = function() {
         const b = parseInt(document.getElementById('bet').value);
         if(rRun) { stopR(false); return; }
-        if(mCoins < b || b <= 0) { tg.showAlert("Мало MC!"); return; }
+        if(mCoins < b || b <= 0) return tg.showAlert("Мало MC!");
         mCoins -= b; rRun = true; rM = 1.0; updateUI();
         document.getElementById('rbtn').innerText = "ЗАБРАТЬ!";
         document.getElementById('rbtn').style.background = "var(--red)";
@@ -204,7 +263,19 @@
         setTimeout(() => { document.getElementById('multiplier').innerText = "1.00x"; updateUI(); save(); }, 1500);
     }
 
-    // АДМИНКА
+    window.buyU = () => { if(count >= uCost) { count -= uCost; power += 2; uCost = Math.floor(uCost*1.7); updateUI(); save(); } }
+    
+    window.usePromo = () => {
+        const p = prompt("Введите код:");
+        if(p === "BOSS") { 
+            if(!localStorage.getItem('p_boss')) {
+                mCoins += 1000; localStorage.setItem('p_boss', '1');
+                tg.showAlert("BOSS активирован! +1000 MC");
+                updateUI(); save();
+            } else tg.showAlert("Уже вводили!");
+        }
+    }
+
     window.admGive = async function() {
         const tid = document.getElementById('target-id').value;
         const amt = parseInt(document.getElementById('gift-amt').value);
@@ -212,34 +283,21 @@
         if(s.exists()){
             let d = s.val(); d.c = (d.c || 0) + amt;
             await set(ref(db, 'users/' + tid), d);
-            tg.showAlert("Выдано!");
+            tg.showAlert("Начислено!");
         } else tg.showAlert("ID не найден");
     }
 
-    // ПРОМОКОД
-    window.usePromo = function() {
-        const p = prompt("Введите код:");
-        if(p === "BOSS") { 
-            if(!localStorage.getItem('p_boss')) {
-                mCoins += 1000; localStorage.setItem('p_boss', '1');
-                tg.showAlert("Активирован код BOSS! +1000 MC");
-                updateUI(); save();
-            } else tg.showAlert("Уже вводили!");
-        } else tg.showAlert("Неверно!");
-    }
-
-    window.buyU = () => { if(count >= uCost) { count -= uCost; power += 2; uCost = Math.floor(uCost*1.7); updateUI(); save(); } }
-    window.showP = (p) => {
+    window.showP = (p, el) => {
         document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
         document.getElementById(p).classList.add('active-page');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('n-'+p).classList.add('active');
+        el.classList.add('active');
         if(p === 'leaders') {
             onValue(ref(db, 'users/'), (s) => {
                 let a = []; s.forEach(x => { a.push(x.val()) });
                 a.sort((x,y) => y.s - x.s);
                 document.getElementById('leader-list').innerHTML = a.slice(0,20).map((u,i) => 
-                    `<div class="card"><span>${i+1}. ${u.n}</span><span>${u.s.toLocaleString()} 🍄</span></div>`
+                    `<div class="card"><span>${i+1}. ${u.n}</span><span>${Math.floor(u.s).toLocaleString()} 🍄</span></div>`
                 ).join('');
             });
         }
